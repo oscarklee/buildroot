@@ -1,0 +1,49 @@
+# Snes9x Custom Linux for Raspberry Pi Zero 2W
+# Based on official Buildroot Raspberry Pi board configuration
+
+# Use zImage for 32-bit ARM
+kernel=zImage
+
+# The firmware will choose the correct DTB automatically
+# bcm2710-rpi-zero-2-w.dtb
+
+# Enable UART for serial console and diagnostic logs
+enable_uart=1
+uart_2ndstage=1
+
+# Video setup
+hdmi_force_hotplug=1
+hdmi_drive=2
+disable_overscan=1
+
+# GPU memory allocation
+# 100MB is recommended for Raspberry Pi Zero 2W
+gpu_mem=100
+
+# Audio and Bluetooth setup
+dtparam=audio=on
+dtoverlay=miniuart-bt
+
+# Boot optimizations
+disable_splash=1
+boot_delay=0
+initial_turbo=30
+
+# Video setup
+hdmi_force_hotplug=1
+hdmi_drive=2
+# hdmi_safe=1 # Commented out to allow normal boot colors if possible
+
+# Disable overscan
+disable_overscan=1
+
+# GPU memory allocation
+gpu_mem=64
+
+# Audio and Bluetooth
+dtparam=audio=on
+dtoverlay=miniuart-bt
+
+# Boot optimizations (Disabled for diagnostics)
+disable_splash=0
+boot_delay=1
