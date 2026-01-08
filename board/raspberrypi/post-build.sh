@@ -14,3 +14,26 @@ elif [ -d ${TARGET_DIR}/etc/systemd ]; then
     ln -sf /lib/systemd/system/getty@.service \
        "${TARGET_DIR}/etc/systemd/system/getty.target.wants/getty@tty1.service"
 fi
+
+# Create necessary directories for WiFi
+mkdir -p "${TARGET_DIR}/var/run/wpa_supplicant"
+
+# Create necessary directories for Bluetooth
+mkdir -p "${TARGET_DIR}/var/lib/bluetooth"
+
+# Set proper permissions for wpa_supplicant.conf
+if [ -f "${TARGET_DIR}/etc/wpa_supplicant.conf" ]; then
+    chmod 600 "${TARGET_DIR}/etc/wpa_supplicant.conf"
+fi
+
+# Make Bluetooth init script executable
+if [ -f "${TARGET_DIR}/etc/init.d/S40bluetooth" ]; then
+    chmod +x "${TARGET_DIR}/etc/init.d/S40bluetooth"
+fi
+
+# Remove conflicting Buildroot Bluetooth init scripts
+rm -f "${TARGET_DIR}/etc/init.d/S30bluetooth"
+rm -f "${TARGET_DIR}/etc/init.d/S40bluetoothd"
+rm -f "${TARGET_DIR}/etc/init.d/S45bluetoothd"
+
+echo "Post-build script completed successfully."

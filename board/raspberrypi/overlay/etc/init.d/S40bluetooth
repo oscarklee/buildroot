@@ -1,0 +1,68 @@
+#!/bin/sh
+
+DAEMON="bluetoothd"
+PIDFILE="/var/run/$DAEMON.pid"
+
+start() {
+    echo "Starting Bluetooth..."
+    
+    # Load Bluetooth UART driver for BCM43430
+    modprobe hci_uart 2>/dev/null || true
+    
+    # Load UHID module for HID device support
+    modprobe uhid 2>/dev/null || true
+    
+    # Attach the Bluetooth HCI device
+    if [ -e /proc/device-tree/soc/gpio@7e200000/bt_pins ]; then
+        # RPi Zero 2W uses miniuart-bt overlay
+        # Use timeout to prevent hanging, run in background
+        ( hciattach /dev/ttyAMA0 bcm43xx 921600 noflow - || true ) &
+        sleep 3
+    fi
+    
+    # Start bluetoothd daemon with compatibility mode for older devices
+    start-stop-daemon -S -q -b -m -p $PIDFILE -x /usr/libexec/bluetooth/bluetoothd -- \
+        --compat --experimental
+    
+    # Wait for bluetooth to be ready
+    sleep 2
+    
+    # Power on the Bluetooth controller
+    bluetoothctl power on >/dev/null 2>&1 || true
+    
+    # Enable pairable and discoverable mode for easier pairing
+    bluetoothctl pairable on >/dev/null 2>&1 || true
+    bluetoothctl discoverable on >/dev/null 2>&1 || true
+    
+    echo "Bluetooth ready. Use 'bluetoothctl' to pair devices via SSH"
+}
+
+stop() {
+    echo "Stopping Bluetooth..."
+    bluetoothctl power off
+    start-stop-daemon -K -q -p $PIDFILE
+    killall hciattach 2>/dev/null
+}
+
+restart() {
+    stop
+    sleep 1
+    start
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart|reload)
+        restart
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+
+exit $?
