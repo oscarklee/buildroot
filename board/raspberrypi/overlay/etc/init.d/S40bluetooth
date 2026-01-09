@@ -4,27 +4,27 @@ DAEMON="bluetoothd"
 PIDFILE="/var/run/$DAEMON.pid"
 
 start() {
-    echo "Starting Bluetooth (Stable Mode)..."
-    modprobe hci_uart 2>/dev/null || true
-    modprobe uhid 2>/dev/null || true
-    
-    if [ -e /proc/device-tree/soc/gpio@7e200000/bt_pins ]; then
-        ( hciattach /dev/ttyAMA0 bcm43xx 921600 noflow - || true ) &
-        sleep 3
-    fi
-    
-    start-stop-daemon -S -q -b -m -p $PIDFILE -x /usr/libexec/bluetooth/bluetoothd -- --compat --experimental
-    
-    sleep 3
-    bluetoothctl power on
-    bluetoothctl pairable on
-    bluetoothctl discoverable on
-    
-    # Page Scan estándar (más estable)
-    hciconfig hci0 pscan
-    
-    # Guardian de reconexión estable (1.0s)
     (
+        echo "Starting Bluetooth (Background)..."
+        modprobe hci_uart 2>/dev/null || true
+        modprobe uhid 2>/dev/null || true
+        
+        if [ -e /proc/device-tree/soc/gpio@7e200000/bt_pins ]; then
+            ( hciattach /dev/ttyAMA0 bcm43xx 921600 noflow - || true ) &
+            sleep 3
+        fi
+        
+        start-stop-daemon -S -q -b -m -p $PIDFILE -x /usr/libexec/bluetooth/bluetoothd -- --compat --experimental
+        
+        sleep 3
+        bluetoothctl power on
+        bluetoothctl pairable on
+        bluetoothctl discoverable on
+        
+        # Page Scan estándar (más estable)
+        hciconfig hci0 pscan
+        
+        # Guardian de reconexión estable (1.0s)
         while true; do
             if hcitool con | grep -q '8C:CD:E8:BA:D8:40'; then
                 if ! bluetoothctl info 8C:CD:E8:BA:D8:40 | grep -q 'Connected: yes'; then

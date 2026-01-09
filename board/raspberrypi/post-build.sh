@@ -36,13 +36,13 @@ if [ -f "${TARGET_DIR}/etc/init.d/S40bluetooth" ]; then
 fi
 
 # Make init scripts executable for Snes9x
-if [ -f "${TARGET_DIR}/etc/init.d/S99emulator" ]; then
-    chmod +x "${TARGET_DIR}/etc/init.d/S99emulator"
+if [ -f "${TARGET_DIR}/etc/init.d/S30emulator" ]; then
+    chmod +x "${TARGET_DIR}/etc/init.d/S30emulator"
 fi
 
-if [ -f "${TARGET_DIR}/etc/init.d/S99background" ]; then
-    chmod +x "${TARGET_DIR}/etc/init.d/S99background"
-fi
+# Remove old scripts if they exist in target
+rm -f "${TARGET_DIR}/etc/init.d/S99emulator"
+rm -f "${TARGET_DIR}/etc/init.d/S99background"
 
 # Set proper permissions for snes9x config
 if [ -d "${TARGET_DIR}/root/.snes9x" ]; then

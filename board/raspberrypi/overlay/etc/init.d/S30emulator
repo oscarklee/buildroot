@@ -4,18 +4,13 @@ case "$1" in
   start)
     printf "Launching Snes9x (Ultra-Fast Boot)...\n"
     
-    # Carga de drivers críticos de hardware (Video y Audio)
-    modprobe i2c-bcm2835 2>/dev/null
-    modprobe i2c-dev 2>/dev/null
-    modprobe snd-bcm2835 2>/dev/null
-    modprobe hid-wiimote 2>/dev/null
-    modprobe joydev 2>/dev/null
-    modprobe vc4 2>/dev/null
+    # Drivers ya cargados por modules-load.d/vc4.conf
     
     # Entorno SDL para GPU
     export SDL_VIDEODRIVER=kmsdrm
     export SDL_RENDER_DRIVER=opengles2
     export SDL_RENDER_VSYNC=1
+    export HOME=/root
     
     # Lanzar el emulador inmediatamente en segundo plano
     # Esto permite que el sistema siga arrancando el Bluetooth/WiFi mientras juegas

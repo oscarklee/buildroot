@@ -8,39 +8,41 @@ WPA_SUPPLICANT_CONF=/etc/wpa_supplicant.conf
 
 case "$1" in
     start)
-        printf "Starting $DAEMON: "
-        
-        # Load brcmfmac driver
-        modprobe brcmfmac
-        
-        # Wait for wlan0 interface
-        for i in $(seq 1 15); do
-            if ifconfig wlan0 > /dev/null 2>&1; then
-                break
+        (
+            printf "Starting $DAEMON (Background): "
+            
+            # Load brcmfmac driver
+            modprobe brcmfmac
+            
+            # Wait for wlan0 interface
+            for i in $(seq 1 15); do
+                if ifconfig wlan0 > /dev/null 2>&1; then
+                    break
+                fi
+                sleep 1
+            done
+            
+            # Check if wlan0 exists
+            if ! ifconfig wlan0 > /dev/null 2>&1; then
+                echo "FAIL (wlan0 not found)"
+                exit 1
             fi
-            sleep 1
-        done
-        
-        # Check if wlan0 exists
-        if ! ifconfig wlan0 > /dev/null 2>&1; then
-            echo "FAIL (wlan0 not found)"
-            exit 1
-        fi
-        
-        # Bring up wlan0
-        ifconfig wlan0 up
-        
-        # Start wpa_supplicant
-        start-stop-daemon -S -q -p $PIDFILE -x $WPA_SUPPLICANT_BIN -- \
-            -B -P $PIDFILE -i wlan0 -c $WPA_SUPPLICANT_CONF -D nl80211,wext
-        
-        # Wait a bit for connection
-        sleep 5
-        
-        # Get IP via DHCP
-        udhcpc -i wlan0 -q -n
-        
-        echo "OK"
+            
+            # Bring up wlan0
+            ifconfig wlan0 up
+            
+            # Start wpa_supplicant
+            start-stop-daemon -S -q -p $PIDFILE -x $WPA_SUPPLICANT_BIN -- \
+                -B -P $PIDFILE -i wlan0 -c $WPA_SUPPLICANT_CONF -D nl80211,wext
+            
+            # Wait a bit for connection
+            sleep 5
+            
+            # Get IP via DHCP
+            udhcpc -i wlan0 -q -n
+            
+            echo "OK"
+        ) &
         ;;
     stop)
         printf "Stopping $DAEMON: "

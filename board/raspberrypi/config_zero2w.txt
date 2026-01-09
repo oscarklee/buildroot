@@ -4,6 +4,10 @@
 # See http://buildroot.org/manual.html#rootfs-custom
 # and http://elinux.org/RPiconfig for a description of config.txt syntax
 
+# Optimizar velocidad de arranque
+boot_delay=0
+disable_splash=1
+
 start_file=start.elf
 fixup_file=fixup.dat
 
@@ -38,9 +42,8 @@ hdmi_drive=2
 # hdmi_group=1  # CEA (TV) = 1, DMT (Monitor) = 2
 # hdmi_mode=16  # 1080p 60Hz = 16 (CEA), 720p 60Hz = 4 (CEA)
 
-# Enable VC4 graphics with FAKE KMS (more stable for Pi Zero 2W)
-# Note: Using fkms instead of kms for better compatibility
-dtoverlay=vc4-fkms-v3d
+# Enable VC4 graphics with FULL KMS (Requested for performance)
+dtoverlay=vc4-kms-v3d
 max_framebuffers=2
 
 # Enable UART0 for serial console on ttyAMA0
