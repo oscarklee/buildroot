@@ -18,9 +18,30 @@ disable_overscan=1
 
 # How much memory in MB to assign to the GPU on Pi models having
 # 256, 512 or 1024 MB total memory
-gpu_mem_256=100
-gpu_mem_512=100
-gpu_mem_1024=100
+# Increased for better SDL2 performance
+gpu_mem_256=128
+gpu_mem_512=128
+gpu_mem_1024=128
+
+# Audio configuration
+dtparam=audio=on
+audio_pwm_mode=2
+
+# HDMI configuration
+# Force HDMI mode even if no HDMI monitor is detected
+hdmi_force_hotplug=1
+# Use HDMI audio output (mode 2 = DMT, CEA for audio)
+hdmi_drive=2
+# Use safe HDMI mode if monitor compatibility issues
+# hdmi_safe=1
+# Force specific resolution (uncomment if needed)
+# hdmi_group=1  # CEA (TV) = 1, DMT (Monitor) = 2
+# hdmi_mode=16  # 1080p 60Hz = 16 (CEA), 720p 60Hz = 4 (CEA)
+
+# Enable VC4 graphics with FAKE KMS (more stable for Pi Zero 2W)
+# Note: Using fkms instead of kms for better compatibility
+dtoverlay=vc4-fkms-v3d
+max_framebuffers=2
 
 # Enable UART0 for serial console on ttyAMA0
 dtoverlay=miniuart-bt

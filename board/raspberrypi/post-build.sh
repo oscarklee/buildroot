@@ -3,6 +3,10 @@
 set -u
 set -e
 
+TARGET_DIR=$1
+
+echo "Running post-build script for Raspberry Pi Zero 2W with Snes9x..."
+
 # Add a console on tty1
 if [ -e ${TARGET_DIR}/etc/inittab ]; then
     grep -qE '^tty1::' ${TARGET_DIR}/etc/inittab || \
@@ -30,6 +34,31 @@ fi
 if [ -f "${TARGET_DIR}/etc/init.d/S40bluetooth" ]; then
     chmod +x "${TARGET_DIR}/etc/init.d/S40bluetooth"
 fi
+
+# Make init scripts executable for Snes9x
+if [ -f "${TARGET_DIR}/etc/init.d/S99emulator" ]; then
+    chmod +x "${TARGET_DIR}/etc/init.d/S99emulator"
+fi
+
+if [ -f "${TARGET_DIR}/etc/init.d/S99background" ]; then
+    chmod +x "${TARGET_DIR}/etc/init.d/S99background"
+fi
+
+# Set proper permissions for snes9x config
+if [ -d "${TARGET_DIR}/root/.snes9x" ]; then
+    chmod -R 755 "${TARGET_DIR}/root/.snes9x"
+fi
+
+# Set proper permissions for Bluetooth config
+if [ -d "${TARGET_DIR}/var/lib/bluetooth" ]; then
+    chmod -R 755 "${TARGET_DIR}/var/lib/bluetooth"
+fi
+
+# Create necessary directories
+mkdir -p "${TARGET_DIR}/var/run/dbus"
+
+# Set root directory permissions
+chmod 700 "${TARGET_DIR}/root"
 
 # Remove conflicting Buildroot Bluetooth init scripts
 rm -f "${TARGET_DIR}/etc/init.d/S30bluetooth"

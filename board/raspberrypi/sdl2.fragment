@@ -1,0 +1,2 @@
+# Disable ALSA audio temporarily due to SDL2 2.32.10 compilation bug
+BR2_PACKAGE_SDL2_ALSA is not set

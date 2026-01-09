@@ -14,3 +14,6 @@
 *~
 *.pyc
 /br.log
+
+board/raspberrypi/overlay/root/.snes9x/rom/*.zip
+board/raspberrypi/overlay/root/.snes9x/boxart/*.png

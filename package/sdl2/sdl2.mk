@@ -20,6 +20,7 @@ SDL2_CONF_OPTS += \
 	--disable-esd \
 	--disable-dbus \
 	--disable-pulseaudio \
+	--disable-alsa \
 	--disable-video-vivante \
 	--disable-video-cocoa \
 	--disable-video-metal \
@@ -159,7 +160,7 @@ endif
 
 ifeq ($(BR2_PACKAGE_SDL2_KMSDRM),y)
 SDL2_DEPENDENCIES += libdrm libgbm libegl
-SDL2_CONF_OPTS += --enable-video-kmsdrm
+SDL2_CONF_OPTS += --enable-video-kmsdrm --disable-kmsdrm-shared
 else
 SDL2_CONF_OPTS += --disable-video-kmsdrm
 endif
