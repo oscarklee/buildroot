@@ -20,7 +20,7 @@ case "$1" in
     # Lanzar el emulador inmediatamente en segundo plano
     # Esto permite que el sistema siga arrancando el Bluetooth/WiFi mientras juegas
     cd /root
-    /usr/bin/snes9x "/root/.snes9x/rom/Super Mario World (USA).zip" >/var/log/snes9x.log 2>&1 &
+    /usr/bin/snes9x >/var/log/snes9x.log 2>&1 &
     ;;
     
   stop)
