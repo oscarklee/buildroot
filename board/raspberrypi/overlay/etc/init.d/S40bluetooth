@@ -4,37 +4,38 @@ DAEMON="bluetoothd"
 PIDFILE="/var/run/$DAEMON.pid"
 
 start() {
-    echo "Starting Bluetooth..."
-    
-    # Load Bluetooth UART driver for BCM43430
+    echo "Starting Bluetooth (Stable Mode)..."
     modprobe hci_uart 2>/dev/null || true
-    
-    # Load UHID module for HID device support
     modprobe uhid 2>/dev/null || true
     
-    # Attach the Bluetooth HCI device
     if [ -e /proc/device-tree/soc/gpio@7e200000/bt_pins ]; then
-        # RPi Zero 2W uses miniuart-bt overlay
-        # Use timeout to prevent hanging, run in background
         ( hciattach /dev/ttyAMA0 bcm43xx 921600 noflow - || true ) &
         sleep 3
     fi
     
-    # Start bluetoothd daemon with compatibility mode for older devices
-    start-stop-daemon -S -q -b -m -p $PIDFILE -x /usr/libexec/bluetooth/bluetoothd -- \
-        --compat --experimental
+    start-stop-daemon -S -q -b -m -p $PIDFILE -x /usr/libexec/bluetooth/bluetoothd -- --compat --experimental
     
-    # Wait for bluetooth to be ready
-    sleep 2
+    sleep 3
+    bluetoothctl power on
+    bluetoothctl pairable on
+    bluetoothctl discoverable on
     
-    # Power on the Bluetooth controller
-    bluetoothctl power on >/dev/null 2>&1 || true
+    # Page Scan estándar (más estable)
+    hciconfig hci0 pscan
     
-    # Enable pairable and discoverable mode for easier pairing
-    bluetoothctl pairable on >/dev/null 2>&1 || true
-    bluetoothctl discoverable on >/dev/null 2>&1 || true
-    
-    echo "Bluetooth ready. Use 'bluetoothctl' to pair devices via SSH"
+    # Guardian de reconexión estable (1.0s)
+    (
+        while true; do
+            if hcitool con | grep -q '8C:CD:E8:BA:D8:40'; then
+                if ! bluetoothctl info 8C:CD:E8:BA:D8:40 | grep -q 'Connected: yes'; then
+                    # Esperar 0.5s para que el mando termine su propio proceso interno
+                    sleep 0.5
+                    bluetoothctl connect 8C:CD:E8:BA:D8:40 >/dev/null 2>&1
+                fi
+            fi
+            sleep 0.5
+        done
+    ) &
 }
 
 stop() {
@@ -42,6 +43,7 @@ stop() {
     bluetoothctl power off
     start-stop-daemon -K -q -p $PIDFILE
     killall hciattach 2>/dev/null
+    pkill -f 'hcitool con' 2>/dev/null
 }
 
 restart() {
@@ -51,18 +53,8 @@ restart() {
 }
 
 case "$1" in
-    start)
-        start
-        ;;
-    stop)
-        stop
-        ;;
-    restart|reload)
-        restart
-        ;;
-    *)
-        echo "Usage: $0 {start|stop|restart}"
-        exit 1
+    start) start ;;
+    stop) stop ;;
+    restart|reload) restart ;;
+    *) echo "Usage: $0 {start|stop|restart}"; exit 1 ;;
 esac
-
-exit $?

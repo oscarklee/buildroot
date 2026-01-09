@@ -1,0 +1,42 @@
+#!/bin/sh
+
+case "$1" in
+  start)
+    printf "Launching Snes9x (Ultra-Fast Boot)...\n"
+    
+    # Carga de drivers críticos de hardware (Video y Audio)
+    modprobe i2c-bcm2835 2>/dev/null
+    modprobe i2c-dev 2>/dev/null
+    modprobe snd-bcm2835 2>/dev/null
+    modprobe hid-wiimote 2>/dev/null
+    modprobe joydev 2>/dev/null
+    modprobe vc4 2>/dev/null
+    
+    # Entorno SDL para GPU
+    export SDL_VIDEODRIVER=kmsdrm
+    export SDL_RENDER_DRIVER=opengles2
+    export SDL_RENDER_VSYNC=1
+    
+    # Lanzar el emulador inmediatamente en segundo plano
+    # Esto permite que el sistema siga arrancando el Bluetooth/WiFi mientras juegas
+    cd /root
+    /usr/bin/snes9x "/root/.snes9x/rom/Super Mario World (USA).zip" >/var/log/snes9x.log 2>&1 &
+    ;;
+    
+  stop)
+    killall snes9x 2>/dev/null
+    ;;
+    
+  restart|reload)
+    "$0" stop
+    sleep 1
+    "$0" start
+    ;;
+    
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+    ;;
+esac
+
+exit 0

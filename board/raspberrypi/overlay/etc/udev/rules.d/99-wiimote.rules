@@ -1,0 +1,4 @@
+SUBSYSTEM=="leds", KERNEL=="*:blue:p0", ACTION=="add", ATTR{brightness}="1"
+SUBSYSTEM=="leds", KERNEL=="*:blue:p1", ACTION=="add", ATTR{brightness}="0"
+SUBSYSTEM=="leds", KERNEL=="*:blue:p2", ACTION=="add", ATTR{brightness}="0"
+SUBSYSTEM=="leds", KERNEL=="*:blue:p3", ACTION=="add", ATTR{brightness}="0"

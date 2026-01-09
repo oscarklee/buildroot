@@ -1,0 +1,19 @@
+[General]
+Name=Nintendo RVL-CNT-01-UC
+Class=0x000508
+SupportedTechnologies=BR/EDR;
+Trusted=true
+Blocked=false
+WakeAllowed=true
+Services=00001124-0000-1000-8000-00805f9b34fb;00001200-0000-1000-8000-00805f9b34fb;
+
+[LinkKey]
+Key=D451347CBEECAFC4B789D4367BA069CF
+Type=0
+PINLength=0
+
+[DeviceID]
+Source=2
+Vendor=1406
+Product=816
+Version=1

@@ -51,7 +51,7 @@ fi
 
 # Set proper permissions for Bluetooth config
 if [ -d "${TARGET_DIR}/var/lib/bluetooth" ]; then
-    chmod -R 755 "${TARGET_DIR}/var/lib/bluetooth"
+    chmod -R 700 "${TARGET_DIR}/var/lib/bluetooth"
 fi
 
 # Create necessary directories
