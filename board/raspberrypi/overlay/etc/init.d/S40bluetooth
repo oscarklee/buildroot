@@ -2,6 +2,7 @@
 
 DAEMON="bluetoothd"
 PIDFILE="/var/run/$DAEMON.pid"
+CONTROLLER="8C:CD:E8:BA:D8:40"
 
 start() {
     (
@@ -21,19 +22,12 @@ start() {
         bluetoothctl pairable on
         bluetoothctl discoverable on
         
-        # Page Scan estándar (más estable)
-        hciconfig hci0 pscan
-        
-        # Guardian de reconexión estable (1.0s)
+        # Reconnection Guardian using bluetoothctl only (no hcitool required)
         while true; do
-            if hcitool con | grep -q '8C:CD:E8:BA:D8:40'; then
-                if ! bluetoothctl info 8C:CD:E8:BA:D8:40 | grep -q 'Connected: yes'; then
-                    # Esperar 0.5s para que el mando termine su propio proceso interno
-                    sleep 0.5
-                    bluetoothctl connect 8C:CD:E8:BA:D8:40 >/dev/null 2>&1
-                fi
+            if ! bluetoothctl info $CONTROLLER 2>/dev/null | grep -q "Connected: yes"; then
+                bluetoothctl connect $CONTROLLER >/dev/null 2>&1
             fi
-            sleep 0.5
+            sleep 2
         done
     ) &
 }
@@ -43,7 +37,7 @@ stop() {
     bluetoothctl power off
     start-stop-daemon -K -q -p $PIDFILE
     killall hciattach 2>/dev/null
-    pkill -f 'hcitool con' 2>/dev/null
+    pkill -f "bluetoothctl connect" 2>/dev/null
 }
 
 restart() {

@@ -1,28 +1,18 @@
-# Please note that this is only a sample, we recommend you to change it to fit
-# your needs.
-# You should override this file using BR2_PACKAGE_RPI_FIRMWARE_CONFIG_FILE.
-# See http://buildroot.org/manual.html#rootfs-custom
-# and http://elinux.org/RPiconfig for a description of config.txt syntax
-
-# Optimizar velocidad de arranque
+# Optimize boot speed
 boot_delay=0
 disable_splash=1
 
+# Firmware files
 start_file=start.elf
 fixup_file=fixup.dat
 
+# Kernel
 kernel=zImage
 
-# To use an external initramfs file
-#initramfs rootfs.cpio.gz
-
-# Disable overscan assuming the display supports displaying the full resolution
-# If the text shown on the screen disappears off the edge, comment this out
+# Display settings
 disable_overscan=1
 
-# How much memory in MB to assign to the GPU on Pi models having
-# 256, 512 or 1024 MB total memory
-# Increased for better SDL2 performance
+# GPU Memory (MB)
 gpu_mem_256=128
 gpu_mem_512=128
 gpu_mem_1024=128
@@ -32,19 +22,12 @@ dtparam=audio=on
 audio_pwm_mode=2
 
 # HDMI configuration
-# Force HDMI mode even if no HDMI monitor is detected
 hdmi_force_hotplug=1
-# Use HDMI audio output (mode 2 = DMT, CEA for audio)
 hdmi_drive=2
-# Use safe HDMI mode if monitor compatibility issues
-# hdmi_safe=1
-# Force specific resolution (uncomment if needed)
-# hdmi_group=1  # CEA (TV) = 1, DMT (Monitor) = 2
-# hdmi_mode=16  # 1080p 60Hz = 16 (CEA), 720p 60Hz = 4 (CEA)
 
-# Enable VC4 graphics with FULL KMS (Requested for performance)
+# Graphics configuration (Full KMS)
 dtoverlay=vc4-kms-v3d
 max_framebuffers=2
 
-# Enable UART0 for serial console on ttyAMA0
+# Bluetooth and Serial
 dtoverlay=miniuart-bt

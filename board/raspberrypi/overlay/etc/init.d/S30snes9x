@@ -4,16 +4,16 @@ case "$1" in
   start)
     printf "Launching Snes9x (Ultra-Fast Boot)...\n"
     
-    # Drivers ya cargados por modules-load.d/vc4.conf
+    # Drivers already loaded by modules-load.d/vc4.conf
     
-    # Entorno SDL para GPU
+    # SDL environment for GPU
     export SDL_VIDEODRIVER=kmsdrm
     export SDL_RENDER_DRIVER=opengles2
     export SDL_RENDER_VSYNC=1
     export HOME=/root
     
-    # Lanzar el emulador inmediatamente en segundo plano
-    # Esto permite que el sistema siga arrancando el Bluetooth/WiFi mientras juegas
+    # Launch the emulator immediately in the background
+    # This allows the system to continue booting Bluetooth/WiFi while you play
     cd /root
     /usr/bin/snes9x >/var/log/snes9x.log 2>&1 &
     ;;

@@ -7,17 +7,10 @@ TARGET_DIR=$1
 
 echo "Running post-build script for Raspberry Pi Zero 2W with Snes9x..."
 
-# Add a console on tty1
-if [ -e ${TARGET_DIR}/etc/inittab ]; then
-    grep -qE '^tty1::' ${TARGET_DIR}/etc/inittab || \
-	sed -i '/GENERIC_SERIAL/a\
-tty1::respawn:/sbin/getty -L  tty1 0 vt100 # HDMI console' ${TARGET_DIR}/etc/inittab
-# systemd doesn't use /etc/inittab, enable getty.tty1.service instead
-elif [ -d ${TARGET_DIR}/etc/systemd ]; then
-    mkdir -p "${TARGET_DIR}/etc/systemd/system/getty.target.wants"
-    ln -sf /lib/systemd/system/getty@.service \
-       "${TARGET_DIR}/etc/systemd/system/getty.target.wants/getty@tty1.service"
-fi
+# Remove unnecessary services to speed up boot
+rm -f "${TARGET_DIR}/etc/init.d/S01syslogd"
+rm -f "${TARGET_DIR}/etc/init.d/S02klogd"
+rm -f "${TARGET_DIR}/etc/init.d/S50crond"
 
 # Create necessary directories for WiFi
 mkdir -p "${TARGET_DIR}/var/run/wpa_supplicant"
@@ -30,17 +23,16 @@ if [ -f "${TARGET_DIR}/etc/wpa_supplicant.conf" ]; then
     chmod 600 "${TARGET_DIR}/etc/wpa_supplicant.conf"
 fi
 
-# Make Bluetooth init script executable
+# Make init scripts executable
+if [ -f "${TARGET_DIR}/etc/init.d/S30snes9x" ]; then
+    chmod +x "${TARGET_DIR}/etc/init.d/S30snes9x"
+fi
 if [ -f "${TARGET_DIR}/etc/init.d/S40bluetooth" ]; then
     chmod +x "${TARGET_DIR}/etc/init.d/S40bluetooth"
 fi
 
-# Make init scripts executable for Snes9x
-if [ -f "${TARGET_DIR}/etc/init.d/S30emulator" ]; then
-    chmod +x "${TARGET_DIR}/etc/init.d/S30emulator"
-fi
-
 # Remove old scripts if they exist in target
+rm -f "${TARGET_DIR}/etc/init.d/S30emulator"
 rm -f "${TARGET_DIR}/etc/init.d/S99emulator"
 rm -f "${TARGET_DIR}/etc/init.d/S99background"
 
@@ -49,9 +41,11 @@ if [ -d "${TARGET_DIR}/root/.snes9x" ]; then
     chmod -R 755 "${TARGET_DIR}/root/.snes9x"
 fi
 
-# Set proper permissions for Bluetooth config
-if [ -d "${TARGET_DIR}/var/lib/bluetooth" ]; then
-    chmod -R 700 "${TARGET_DIR}/var/lib/bluetooth"
+# Fix Bluetooth permissions (BlueZ is strict)
+BT_DIR="${TARGET_DIR}/var/lib/bluetooth"
+if [ -d "${BT_DIR}" ]; then
+    find "${BT_DIR}" -type d -exec chmod 700 {} \;
+    find "${BT_DIR}" -type f -exec chmod 600 {} \;
 fi
 
 # Create necessary directories

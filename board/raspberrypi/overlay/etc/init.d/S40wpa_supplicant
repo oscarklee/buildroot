@@ -14,8 +14,8 @@ case "$1" in
             # Load brcmfmac driver
             modprobe brcmfmac
             
-            # Wait for wlan0 interface
-            for i in $(seq 1 15); do
+            # Wait for wlan0 interface (up to 20s for cold boot)
+            for i in $(seq 1 20); do
                 if ifconfig wlan0 > /dev/null 2>&1; then
                     break
                 fi
@@ -35,13 +35,16 @@ case "$1" in
             start-stop-daemon -S -q -p $PIDFILE -x $WPA_SUPPLICANT_BIN -- \
                 -B -P $PIDFILE -i wlan0 -c $WPA_SUPPLICANT_CONF -D nl80211,wext
             
-            # Wait a bit for connection
-            sleep 5
+            # Wait for connection and get IP via DHCP (retry up to 3 times)
+            for attempt in 1 2 3; do
+                sleep 5
+                if udhcpc -i wlan0 -q -n -t 3 2>/dev/null; then
+                    echo "OK"
+                    exit 0
+                fi
+            done
             
-            # Get IP via DHCP
-            udhcpc -i wlan0 -q -n
-            
-            echo "OK"
+            echo "FAIL (no DHCP)"
         ) &
         ;;
     stop)
