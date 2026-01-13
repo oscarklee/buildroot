@@ -15,7 +15,7 @@ case "$1" in
     # Launch the emulator immediately in the background
     # This allows the system to continue booting Bluetooth/WiFi while you play
     cd /root
-    /usr/bin/snes9x >/var/log/snes9x.log 2>&1 &
+    /usr/bin/snes9x -aspect-ratio 8:7 >/var/log/snes9x.log 2>&1 &
     ;;
     
   stop)
